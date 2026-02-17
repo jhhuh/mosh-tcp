@@ -194,7 +194,7 @@ void STMClient::init( void )
     overlays.get_notification_engine().set_escape_key_string( tmp );
   }
   wchar_t tmp[ 128 ];
-  swprintf( tmp, 128, L"Nothing received from server on UDP port %s.", port.c_str() );
+  swprintf( tmp, 128, L"Nothing received from server on TCP port %s.", port.c_str() );
   connecting_notification = wstring( tmp );
 }
 
@@ -215,10 +215,10 @@ void STMClient::shutdown( void )
   }
 
   if ( still_connecting() ) {
-    fprintf( stderr, "\nmosh did not make a successful connection to %s:%s.\n"
-	     "Please verify that UDP port %s is not firewalled and can reach the server.\n\n"
-	     "(By default, mosh uses a UDP port between 60000 and 61000. The -p option\n"
-	     "selects a specific UDP port number.)\n", ip.c_str(), port.c_str(), port.c_str() );
+    fprintf( stderr, "\nmosh-tcp did not make a successful connection to %s:%s.\n"
+	     "Please verify that TCP port %s is not firewalled and can reach the server.\n\n"
+	     "(By default, mosh-tcp uses a TCP port between 60000 and 61000. The -p option\n"
+	     "selects a specific TCP port number.)\n", ip.c_str(), port.c_str(), port.c_str() );
   } else if ( network && !clean_shutdown ) {
     fputs( "\n\nmosh did not shut down cleanly. Please note that the\n"
 	   "mosh-server process may still be running on the server.\n", stderr );
