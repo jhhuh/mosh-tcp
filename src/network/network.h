@@ -101,8 +101,8 @@ namespace Network {
 
   class Connection {
   private:
-    /* TCP framing: [4-byte big-endian length][payload] */
-    static const int TCP_FRAME_HEADER_LEN = 4;
+    /* UoTLV/1 framing: [2-byte big-endian length][payload] */
+    static const int TCP_FRAME_HEADER_LEN = 2;
 
     /* Application datagram MTU. TCP handles segmentation, so use a large value. */
     static const int DEFAULT_SEND_MTU = 16384;

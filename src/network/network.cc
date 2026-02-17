@@ -349,8 +349,8 @@ void Connection::send( const string & s )
 
   string p = session.encrypt( px.toMessage() );
 
-  /* TCP framing: 4-byte big-endian length prefix + payload */
-  uint32_t len_net = htonl( p.size() );
+  /* UoTLV/1 framing: 2-byte big-endian length prefix + payload */
+  uint16_t len_net = htons( p.size() );
   string frame( reinterpret_cast<const char *>( &len_net ), TCP_FRAME_HEADER_LEN );
   frame += p;
 
@@ -447,15 +447,15 @@ string Connection::recv_one( int sock_to_recv )
     tcp_recv_buf.append( tmp, received_len );
   }
 
-  /* Need at least the 4-byte length header */
+  /* Need at least the 2-byte length header */
   if ( tcp_recv_buf.size() < static_cast<size_t>( TCP_FRAME_HEADER_LEN ) ) {
     throw NetworkException( "recv", EAGAIN );
   }
 
-  /* Parse frame length */
-  uint32_t frame_len = ntohl( *reinterpret_cast<const uint32_t *>( tcp_recv_buf.data() ) );
+  /* Parse frame length (UoTLV/1: 2-byte big-endian) */
+  uint16_t frame_len = ntohs( *reinterpret_cast<const uint16_t *>( tcp_recv_buf.data() ) );
 
-  if ( frame_len > 65536 ) {
+  if ( frame_len > 65535 ) {
     throw NetworkException( "Received oversize TCP frame", 0 );
   }
 
