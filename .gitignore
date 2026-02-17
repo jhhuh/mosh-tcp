@@ -1,3 +1,23 @@
+# Autotools generated
+/Makefile.in
+/aclocal.m4
+/aminclude_static.am
+/ar-lib
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+/test-driver
+/VERSION
+conf/Makefile.in
+man/Makefile.in
+scripts/Makefile.in
+src/Makefile.in
+src/*/Makefile.in
+src/include/config.h.in
+src/include/version.h
+
 # Build artifacts
 *.o
 *.a
