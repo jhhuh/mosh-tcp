@@ -109,7 +109,7 @@ qq{Usage: $0 [options] [--] [user@]host [command...]
         --family=prefer-inet use all network types, but try IPv4 first [default]
         --family=prefer-inet6 use all network types, but try IPv6 first
 -p PORT[:PORT2]
-        --port=PORT[:PORT2]  server-side UDP port or range
+        --port=PORT[:PORT2]  server-side TCP port or range
                                 (No effect on server-side SSH port)
         --bind-server={ssh|any|IP}  ask the server to reply from an IP address
                                        (default: "ssh")
@@ -411,7 +411,7 @@ if ( $pid == 0 ) { # child
   die "Cannot exec ssh: $!\n";
 } else { # parent
   my ( $sship, $port, $key );
-  my $bad_udp_port_warning = 0;
+  my $bad_port_warning = 0;
   LINE: while ( <$pipe> ) {
     chomp;
     if ( m{^MOSH IP } ) {
@@ -433,8 +433,8 @@ if ( $pid == 0 ) { # child
 	die "Bad MOSH CONNECT string: $_\n";
       }
     } else {
-      if ( defined $port_request and $port_request =~ m{:} and m{Bad UDP port} ) {
-	$bad_udp_port_warning = 1;
+      if ( defined $port_request and $port_request =~ m{:} and m{Bad TCP port} ) {
+	$bad_port_warning = 1;
       }
       print "$_\n";
     }
@@ -452,8 +452,8 @@ if ( $pid == 0 ) { # child
   }
 
   if ( not defined $key or not defined $port ) {
-    if ( $bad_udp_port_warning ) {
-      die "$0: Server does not support UDP port range option.\n";
+    if ( $bad_port_warning ) {
+      die "$0: Server does not support TCP port range option.\n";
     }
     die "$0: Did not find mosh server startup message. (Have you installed mosh on your server?)\n";
   }
