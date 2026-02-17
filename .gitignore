@@ -1,3 +1,5 @@
+artifacts/
+
 # Autotools generated
 /Makefile.in
 /aclocal.m4
