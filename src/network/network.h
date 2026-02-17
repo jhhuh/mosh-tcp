@@ -101,34 +101,11 @@ namespace Network {
 
   class Connection {
   private:
-    /*
-     * For IPv4, guess the typical (minimum) header length;
-     * fragmentation is not dangerous, just inefficient.
-     */
-    static const int IPV4_HEADER_LEN = 20 /* base IP header */
-      + 8 /* UDP */;
-    /*
-     * For IPv6, we don't want to ever have MTU issues, so make a
-     * conservative guess about header size.
-     */
-    static const int IPV6_HEADER_LEN = 40 /* base IPv6 header */
-      + 16 /* 2 minimum-sized extension headers */
-      + 8 /* UDP */;
-    /* Application datagram MTU. For constructors and fallback. */
-    static const int DEFAULT_SEND_MTU = 500;
-    /*
-     * IPv4 MTU. Don't use full Ethernet-derived MTU,
-     * mobile networks have high tunneling overhead.
-     *
-     * As of July 2016, VPN traffic over Amtrak Acela wifi seems to be
-     * dropped if tunnelled packets are 1320 bytes or larger.  Use a
-     * 1280-byte IPv4 MTU for now.
-     *
-     * We may have to implement ICMP-less PMTUD (RFC 4821) eventually.
-     */
-    static const int DEFAULT_IPV4_MTU = 1280;
-    /* IPv6 MTU. Use the guaranteed minimum to avoid fragmentation. */
-    static const int DEFAULT_IPV6_MTU = 1280;
+    /* TCP framing: [4-byte big-endian length][payload] */
+    static const int TCP_FRAME_HEADER_LEN = 4;
+
+    /* Application datagram MTU. TCP handles segmentation, so use a large value. */
+    static const int DEFAULT_SEND_MTU = 16384;
 
     static const uint64_t MIN_RTO = 50; /* ms */
     static const uint64_t MAX_RTO = 1000; /* ms */
@@ -137,12 +114,6 @@ namespace Network {
     static const int PORT_RANGE_HIGH = 60999;
 
     static const unsigned int SERVER_ASSOCIATION_TIMEOUT = 40000;
-    static const unsigned int PORT_HOP_INTERVAL          = 10000;
-
-    static const unsigned int MAX_PORTS_OPEN             = 10;
-    static const unsigned int MAX_OLD_SOCKET_AGE         = 60000;
-
-    static const int CONGESTION_TIMESTAMP_PENALTY = 500; /* ms */
 
     bool try_bind( const char *addr, int port_low, int port_high );
 
@@ -166,13 +137,14 @@ namespace Network {
     socklen_t remote_addr_len;
 
     bool server;
+    bool accepted; /* server: has accepted a TCP connection */
 
     int MTU; /* application datagram MTU */
 
+    string tcp_recv_buf; /* accumulates partial TCP frames */
+
     Base64Key key;
     Session session;
-
-    void setup( void );
 
     Direction direction;
     uint16_t saved_timestamp;
@@ -180,27 +152,20 @@ namespace Network {
     uint64_t expected_receiver_seq;
 
     uint64_t last_heard;
-    uint64_t last_port_choice;
     uint64_t last_roundtrip_success; /* transport layer needs to tell us this */
 
     bool RTT_hit;
     double SRTT;
     double RTTVAR;
 
-    /* Error from send()/sendto(). */
+    /* Error from send(). */
     string send_error;
 
     Packet new_packet( const string &s_payload );
 
-    void hop_port( void );
-
     int sock( void ) const { assert( !socks.empty() ); return socks.back().fd(); }
 
-    void prune_sockets( void );
-
     string recv_one( int sock_to_recv );
-
-    void set_MTU( int family );
 
   public:
     /* Network transport overhead. */

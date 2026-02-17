@@ -159,7 +159,7 @@ int main( int argc, char *argv[] )
   /* Sanity-check arguments */
   if ( desired_port
        && ( strspn( desired_port, "0123456789" ) != strlen( desired_port ) ) ) {
-    fprintf( stderr, "%s: Bad UDP port (%s)\n\n", argv[ 0 ], desired_port );
+    fprintf( stderr, "%s: Bad TCP port (%s)\n\n", argv[ 0 ], desired_port );
     print_usage( stderr, argv[ 0 ] );
     exit( 1 );
   }

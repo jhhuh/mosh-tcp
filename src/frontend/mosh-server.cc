@@ -273,7 +273,7 @@ int main( int argc, char *argv[] )
   /* Sanity-check arguments */
   int dpl, dph;
   if ( desired_port && ! Connection::parse_portrange( desired_port, dpl, dph ) ) {
-    fprintf( stderr, "%s: Bad UDP port range (%s)\n", argv[ 0 ], desired_port );
+    fprintf( stderr, "%s: Bad TCP port range (%s)\n", argv[ 0 ], desired_port );
     print_usage( stderr, argv[ 0 ] );
     exit( 1 );
   }
